@@ -1,0 +1,23 @@
+# Generated data + outputs (regenerate with scripts/simulate_data.sh)
+data/
+results_bash/
+results_nextflow/
+
+# Nextflow runtime
+work/
+.nextflow/
+.nextflow.log*
+
+# miniwdl runtime
+_LAST/
+*_miniwdl*/
+**/wdl_run/
+20260609_*/
+**/20[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_*/
+
+# General
+*.bam
+*.bai
+*.vcf.gz
+*.vcf.gz.csi
+.DS_Store

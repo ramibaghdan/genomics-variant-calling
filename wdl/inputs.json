@@ -1,0 +1,7 @@
+{
+  "VariantCalling.reference": "data/reference.fasta",
+  "VariantCalling.reads1": "data/reads_R1.fastq",
+  "VariantCalling.reads2": "data/reads_R2.fastq",
+  "VariantCalling.sample_name": "demo",
+  "VariantCalling.docker_image": "variant-calling:latest"
+}
