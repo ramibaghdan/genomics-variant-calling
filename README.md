@@ -49,29 +49,38 @@ measured against, and the whole thing runs in seconds with no downloads.
 
 ## Validation
 
-`scripts/check_truth.sh` compares the called VCF against the injected variants
-and reports recall and precision:
+`scripts/check_truth.sh` compares the called VCF against the injected variants:
 
 ```
-Substitutions in truth : N
-SNVs called            : N
+Substitutions in truth : 831
+SNVs called            : 829
 
-  true positives  N
-  false negatives N   (injected, not called)
-  false positives N   (called, not injected)
+  true positives  828
+  false negatives 3   (injected, not called)
+  false positives 1   (called, not injected)
 
-  recall    NN.N%
-  precision NN.N%
+  recall    99.6%
+  precision 99.9%
 ```
 
-Substitutions only. wgsim records indels with a different position convention
-than bcftools normalizes to, so matching them on position alone produces false
-mismatches, and doing it properly needs allele-level normalization this project
-does not attempt.
+Three injected variants missed, one call with nothing behind it.
 
-Positions are compared, not alleles. At this coverage and mutation rate some
-misses are expected: low-depth positions and reads spanning an indel both cost
-sensitivity.
+Read that as a floor, not an achievement. The reference is 100 kb of random
+sequence with no repeats, no homopolymers, and no mapping ambiguity, covered at
+roughly 40x by 20,000 simulated read pairs. Every variant sits in a uniquely
+mappable context with plenty of supporting reads, so near-perfect numbers are
+what a correctly wired pipeline should produce. The check confirms the four
+steps are connected properly and the tools are doing what they claim. It says
+nothing about how this would perform on a real genome.
+
+`simulate_data.sh` uses a fixed seed, so anyone who clones this and runs it gets
+the same numbers.
+
+Substitutions only. Homozygous and heterozygous sites both count, the latter
+carrying an IUPAC code in wgsim's alt column. Indels are excluded: wgsim reports
+their position differently from how bcftools normalizes them, and comparing them
+properly needs allele-level normalization this project does not attempt.
+Positions are compared, not alleles.
 
 ## Prerequisites
 
@@ -121,7 +130,9 @@ docker run --rm -v "$PWD":/work -w /work variant-calling:latest \
 ## Limitations
 
 - Simulated reads on a random reference. Real genomes have repeats,
-  homopolymers, and mapping-quality problems this does not reproduce.
-- Substitutions only in the validation, for the reason above.
+  homopolymers, and mapping-quality problems this does not reproduce, which is
+  why the validation numbers are as high as they are.
+- Substitutions only in the validation, for the reason given above.
 - `bcftools call -mv` with default filters. No hard filtering, no recalibration.
+  At 40x on clean data this costs nothing; on real data it would.
 - One sample, no joint calling.
