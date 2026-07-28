@@ -7,9 +7,16 @@
 # tools ran. This tells you whether they were right.
 #
 # wgsim truth columns: chromosome, position, ref_base, alt_base, haplotype.
-# Only substitutions are compared. wgsim writes indels with a '-' in the base
-# columns and reports the position differently from how bcftools normalizes
-# them, so matching them by position alone gives false mismatches.
+#
+# Substitutions only. wgsim marks indels with a '-' in a base column and reports
+# their position differently from how bcftools normalizes them, so matching those
+# on position alone produces false mismatches.
+#
+# Heterozygous substitutions carry an IUPAC ambiguity code in the alt column
+# (M=A/C, R=A/G, W=A/T, S=C/G, Y=C/T, K=G/T) rather than a plain base. They are
+# real variants and bcftools calls them, so they count. Requiring ACGT in the alt
+# column drops roughly two thirds of the truth set and every one of them then
+# scores as a false positive.
 #
 # Run INSIDE the Docker image, from the repo root:
 #   docker run --rm -v "$PWD":/work -w /work variant-calling:latest \
@@ -27,7 +34,7 @@ TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
 # Substitutions only: both base columns must be a single ACGT character.
-awk '$3 ~ /^[ACGTacgt]$/ && $4 ~ /^[ACGTacgt]$/ {print $1"\t"$2}' "$TRUTH" \
+awk '$3 ~ /^[ACGTacgt]$/ && $4 ~ /^[ACGTacgtMRWSYKmrwsyk]$/ {print $1"\t"$2}' "$TRUTH" \
   | sort -u > "$TMP/truth.pos"
 
 bcftools view -H -v snps "$VCF" \
@@ -52,6 +59,5 @@ echo
 echo "  recall    $(pct "$TP" "$TRUTH_N")"
 echo "  precision $(pct "$TP" "$CALLED_N")"
 echo
-echo "Positions are compared, not alleles. At this coverage and mutation rate a"
-echo "handful of misses is expected: low-depth positions and reads spanning an"
-echo "indel both cost sensitivity."
+echo "Positions are compared, not alleles. Homozygous and heterozygous"
+echo "substitutions both count; indels are excluded."
