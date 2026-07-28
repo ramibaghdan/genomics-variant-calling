@@ -65,22 +65,20 @@ SNVs called            : 829
 
 Three injected variants missed, one call with nothing behind it.
 
-Read that as a floor, not an achievement. The reference is 100 kb of random
+ The reference is 100 kb of random
 sequence with no repeats, no homopolymers, and no mapping ambiguity, covered at
 roughly 40x by 20,000 simulated read pairs. Every variant sits in a uniquely
-mappable context with plenty of supporting reads, so near-perfect numbers are
-what a correctly wired pipeline should produce. The check confirms the four
-steps are connected properly and the tools are doing what they claim. It says
-nothing about how this would perform on a real genome.
+mappable context with plenty of supporting reads, so near-perfect numbers are what is expected. The check confirms the four
+steps are connected properly and the tools are doing what they claim.
 
-`simulate_data.sh` uses a fixed seed, so anyone who clones this and runs it gets
+`simulate_data.sh` uses a fixed seed, so cloning this gets
 the same numbers.
 
 Substitutions only. Homozygous and heterozygous sites both count, the latter
 carrying an IUPAC code in wgsim's alt column. Indels are excluded: wgsim reports
 their position differently from how bcftools normalizes them, and comparing them
 properly needs allele-level normalization this project does not attempt.
-Positions are compared, not alleles.
+Positions are compared.
 
 ## Prerequisites
 
